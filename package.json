@@ -17,6 +17,11 @@
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^21.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@testing-library/jest-dom": "^6.4.5",
@@ -35,6 +40,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "rollup": "^2.75.0",
+    "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^1.1.1",
     "rollup-plugin-typescript2": "^0.31.1",
