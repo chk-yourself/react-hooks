@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -131,7 +133,44 @@ function useFocus() {
     return [refCallback, isFocused];
 }
 
+/**
+ * Custom hook to track the state of a media query using the Match Media API
+ *
+ * @param query - The media query string to match
+ * @returns A boolean indicating whether the media query matches
+ */
+function useMediaQuery(query) {
+    // State to track the match status of the media query
+    const [matches, setMatches] = react.useState(() => {
+        if (typeof window !== 'undefined' && window.matchMedia) {
+            return window.matchMedia(query).matches;
+        }
+        return false;
+    });
+    react.useEffect(() => {
+        if (typeof window === 'undefined' || !window.matchMedia) {
+            return;
+        }
+        // Create a MediaQueryList object
+        const mediaQueryList = window.matchMedia(query);
+        // Event listener to update state when the media query match status changes
+        const handleChange = (event) => {
+            setMatches(event.matches);
+        };
+        // Attach the listener
+        mediaQueryList.addEventListener('change', handleChange);
+        // Initial check to set the state
+        setMatches(mediaQueryList.matches);
+        // Cleanup listener on component unmount
+        return () => {
+            mediaQueryList.removeEventListener('change', handleChange);
+        };
+    }, [query]);
+    return matches;
+}
+
 exports.useClickOutside = useClickOutside;
 exports.useFocus = useFocus;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;
+exports.useMediaQuery = useMediaQuery;
