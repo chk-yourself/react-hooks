@@ -6,3 +6,4 @@ export { default as useMediaQuery } from "./hooks/useMediaQuery";
 export { default as useForm } from "./hooks/useForm";
 export { default as useResizeObserver } from "./hooks/useResizeObserver";
 export { default as useHover } from "./hooks/useHover";
+export { default as useIntersectionObserver } from "./hooks/useIntersectionObserver";

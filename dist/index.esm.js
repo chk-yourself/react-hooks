@@ -256,4 +256,26 @@ function useHover() {
     return [refCallback, isHovered];
 }
 
-export { useClickOutside, useFocus, useForm, useHover, useIsFirstRender, useLocalStorage, useMediaQuery, useResizeObserver };
+/**
+ * Custom hook to check if a DOM element is visible on the screen using Intersection Observer API.
+ * @param ref A ref object pointing to the DOM element to observe.
+ * @param options Intersection Observer options.
+ * @returns A boolean indicating whether the element is intersecting.
+ */
+function useIntersectionObserver(ref, options) {
+    const [isIntersecting, setIsIntersecting] = useState(false);
+    useEffect(() => {
+        if (!ref.current)
+            return;
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsIntersecting(entry.isIntersecting);
+        }, options);
+        observer.observe(ref.current);
+        return () => {
+            observer.disconnect();
+        };
+    }, [ref, options]);
+    return isIntersecting;
+}
+
+export { useClickOutside, useFocus, useForm, useHover, useIntersectionObserver, useIsFirstRender, useLocalStorage, useMediaQuery, useResizeObserver };
