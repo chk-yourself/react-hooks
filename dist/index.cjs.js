@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -46,5 +48,57 @@ function useClickOutside(callback, externalRef) {
     return ref;
 }
 
+function useLocalStorage(key, initialValue) {
+    // State to store the value
+    const [storedValue, setStoredValue] = react.useState(() => {
+        try {
+            // Get from local storage by key
+            const item = window.localStorage.getItem(key);
+            // Parse stored json or if none return initialValue
+            return item ? JSON.parse(item) : initialValue;
+        }
+        catch (error) {
+            console.error(error);
+            return initialValue;
+        }
+    });
+    // Return a wrapped version of useState's setter function that persists the new value to localStorage
+    const setValue = react.useCallback((value) => {
+        try {
+            // Allow value to be a function so we have the same API as useState
+            const valueToStore = value instanceof Function ? value(storedValue) : value;
+            // Save state
+            setStoredValue(valueToStore);
+            // Save to local storage
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }, [key, storedValue] // Ensure the effect is only triggered when key or storedValue changes
+    );
+    // Listen for storage changes (from other tabs/windows)
+    react.useEffect(() => {
+        const handleStorageChange = (event) => {
+            if (event.key === key) {
+                try {
+                    setStoredValue(event.newValue ? JSON.parse(event.newValue) : initialValue);
+                }
+                catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+        // Add event listener
+        window.addEventListener('storage', handleStorageChange);
+        // Cleanup event listener on unmount
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [key, initialValue]);
+    return [storedValue, setValue];
+}
+
 exports.useClickOutside = useClickOutside;
 exports.useIsFirstRender = useIsFirstRender;
+exports.useLocalStorage = useLocalStorage;

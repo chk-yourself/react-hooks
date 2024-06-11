@@ -28,16 +28,18 @@ export default {
     }),
     babel({
       exclude: 'node_modules/**',
-      babelHelpers: 'bundled'
+      babelHelpers: 'bundled',
     }),
-    !production && serve({
-      open: true,
-      contentBase: ['dist'],
-      port: 3000,
-    }),
-    !production && livereload({
-      watch: 'dist',
-    })
+    !production &&
+      serve({
+        open: true,
+        contentBase: ['dist'],
+        port: 3002,
+      }),
+    !production &&
+      livereload({
+        watch: 'dist',
+      }),
   ],
   external: ['react', 'react-dom'],
 };
