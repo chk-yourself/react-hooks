@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -169,8 +167,42 @@ function useMediaQuery(query) {
     return matches;
 }
 
+function useForm(initialValues, validate, onSubmit) {
+    const [values, setValues] = react.useState(initialValues);
+    const [errors, setErrors] = react.useState({});
+    // Handle form value changes
+    const handleChange = react.useCallback((e) => {
+        const { name, value } = e.target;
+        setValues((prevValues) => (Object.assign(Object.assign({}, prevValues), { [name]: value })));
+    }, []);
+    // Handle form submission
+    const handleSubmit = react.useCallback((e) => {
+        e.preventDefault();
+        const validationErrors = validate(values);
+        if (Object.keys(validationErrors).length === 0) {
+            onSubmit(values);
+        }
+        else {
+            setErrors(validationErrors);
+        }
+    }, [values, validate, onSubmit]);
+    // Reset form values and errors
+    const resetForm = react.useCallback(() => {
+        setValues(initialValues);
+        setErrors({});
+    }, [initialValues]);
+    return {
+        values,
+        errors,
+        handleChange,
+        handleSubmit,
+        resetForm,
+    };
+}
+
 exports.useClickOutside = useClickOutside;
 exports.useFocus = useFocus;
+exports.useForm = useForm;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;
 exports.useMediaQuery = useMediaQuery;
