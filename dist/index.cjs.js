@@ -200,9 +200,45 @@ function useForm(initialValues, validate, onSubmit) {
     };
 }
 
+function useResizeObserver(ref) {
+    const [contentRect, setContentRect] = react.useState({
+        bottom: 0,
+        height: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        width: 0,
+    });
+    react.useEffect(() => {
+        if (!ref.current)
+            return;
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                if (entry.target === ref.current) {
+                    setContentRect({
+                        bottom: entry.contentRect.bottom,
+                        height: entry.contentRect.height,
+                        left: entry.contentRect.left,
+                        right: entry.contentRect.right,
+                        top: entry.contentRect.top,
+                        width: entry.contentRect.width,
+                    });
+                    break;
+                }
+            }
+        });
+        observer.observe(ref.current);
+        return () => {
+            observer.disconnect();
+        };
+    }, [ref]);
+    return contentRect;
+}
+
 exports.useClickOutside = useClickOutside;
 exports.useFocus = useFocus;
 exports.useForm = useForm;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;
 exports.useMediaQuery = useMediaQuery;
+exports.useResizeObserver = useResizeObserver;
