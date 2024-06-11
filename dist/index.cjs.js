@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -336,6 +338,26 @@ function useFetch(url, options) {
     return { data, error, loading };
 }
 
+/**
+ * Custom hook that tracks the previous value of a given state or prop.
+ *
+ * @param value - The value to track.
+ * @returns The previous value.
+ */
+function usePrevious(value) {
+    // Create a ref to store the previous value
+    const prevValue = react.useRef();
+    // Update the ref with the current value after the component has rendered
+    react.useEffect(() => {
+        prevValue.current = value;
+    }, [value]);
+    // Return the previous value (current value of the ref).
+    /* Because useEffect runs asynchronously after every render of the consuming
+      component, prevValue.current returns the previously stored value before it is updated in useEffect above
+    */
+    return prevValue.current;
+}
+
 exports.useClickOutside = useClickOutside;
 exports.useFetch = useFetch;
 exports.useFocus = useFocus;
@@ -345,4 +367,5 @@ exports.useIntersectionObserver = useIntersectionObserver;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;
 exports.useMediaQuery = useMediaQuery;
+exports.usePrevious = usePrevious;
 exports.useResizeObserver = useResizeObserver;

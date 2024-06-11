@@ -8,3 +8,4 @@ export { default as useResizeObserver } from "./hooks/useResizeObserver";
 export { default as useHover } from "./hooks/useHover";
 export { default as useIntersectionObserver } from "./hooks/useIntersectionObserver";
 export { default as useFetch } from "./hooks/useFetch";
+export { default as usePrevious } from "./hooks/usePrevious";

@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 import { useRef, useEffect, useState, useCallback } from 'react';
 
 function useIsFirstRender() {
@@ -332,4 +334,24 @@ function useFetch(url, options) {
     return { data, error, loading };
 }
 
-export { useClickOutside, useFetch, useFocus, useForm, useHover, useIntersectionObserver, useIsFirstRender, useLocalStorage, useMediaQuery, useResizeObserver };
+/**
+ * Custom hook that tracks the previous value of a given state or prop.
+ *
+ * @param value - The value to track.
+ * @returns The previous value.
+ */
+function usePrevious(value) {
+    // Create a ref to store the previous value
+    const prevValue = useRef();
+    // Update the ref with the current value after the component has rendered
+    useEffect(() => {
+        prevValue.current = value;
+    }, [value]);
+    // Return the previous value (current value of the ref).
+    /* Because useEffect runs asynchronously after every render of the consuming
+      component, prevValue.current returns the previously stored value before it is updated in useEffect above
+    */
+    return prevValue.current;
+}
+
+export { useClickOutside, useFetch, useFocus, useForm, useHover, useIntersectionObserver, useIsFirstRender, useLocalStorage, useMediaQuery, usePrevious, useResizeObserver };
