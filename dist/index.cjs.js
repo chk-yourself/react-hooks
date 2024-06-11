@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -369,6 +371,40 @@ function useDebounce(value, delay = 500) {
     return debouncedValue;
 }
 
+const useScrollLock = () => {
+    const ref = react.useRef(null);
+    const originalStyle = react.useRef(null);
+    const lock = react.useCallback(() => {
+        if (ref.current) {
+            const { overflow, paddingRight } = window.getComputedStyle(ref.current);
+            // Save original styles
+            originalStyle.current = { overflow, paddingRight };
+            ref.current.style.overflow = 'hidden';
+            // Prevent width reflow after removing the scrollbar by adding scrollbar width to right-padding
+            const scrollbarWidth = ref.current.offsetWidth - ref.current.clientWidth;
+            ref.current.style.paddingRight = `${(parseInt(paddingRight) || 0) + scrollbarWidth}px`;
+        }
+    }, []);
+    // Restore original styles
+    const unlock = react.useCallback(() => {
+        if (ref.current && originalStyle.current) {
+            ref.current.style.overflow = originalStyle.current.overflow;
+            ref.current.style.paddingRight = originalStyle.current.paddingRight;
+        }
+    }, []);
+    react.useLayoutEffect(() => {
+        if (!ref.current) {
+            ref.current = document.body;
+        }
+        return () => {
+            if (ref.current) {
+                unlock();
+            }
+        };
+    }, [unlock]);
+    return { ref, lock, unlock };
+};
+
 exports.useClickOutside = useClickOutside;
 exports.useDebounce = useDebounce;
 exports.useFetch = useFetch;
@@ -381,3 +417,4 @@ exports.useLocalStorage = useLocalStorage;
 exports.useMediaQuery = useMediaQuery;
 exports.usePrevious = usePrevious;
 exports.useResizeObserver = useResizeObserver;
+exports.useScrollLock = useScrollLock;
