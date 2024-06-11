@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -48,9 +46,19 @@ function useClickOutside(callback, externalRef) {
     return ref;
 }
 
+/**
+ * Custom hook to sync state with localStorage.
+ *
+ * @param key - The key under which the value is stored in localStorage.
+ * @param initialValue - The initial value to use if no value is found in localStorage.
+ * @returns A stateful value and a function to update it.
+ */
 function useLocalStorage(key, initialValue) {
-    // State to store the value
     const [storedValue, setStoredValue] = react.useState(() => {
+        // Fallback for SSR
+        if (typeof window === 'undefined') {
+            return initialValue;
+        }
         try {
             // Get from local storage by key
             const item = window.localStorage.getItem(key);
@@ -65,9 +73,13 @@ function useLocalStorage(key, initialValue) {
     // Return a wrapped version of useState's setter function that persists the new value to localStorage
     const setValue = react.useCallback((value) => {
         try {
+            // Fallback for SSR
+            if (typeof window === 'undefined') {
+                console.warn('Attempted to use localStorage in a non-browser environment');
+                return;
+            }
             // Allow value to be a function so we have the same API as useState
             const valueToStore = value instanceof Function ? value(storedValue) : value;
-            // Save state
             setStoredValue(valueToStore);
             // Save to local storage
             window.localStorage.setItem(key, JSON.stringify(valueToStore));
@@ -75,10 +87,13 @@ function useLocalStorage(key, initialValue) {
         catch (error) {
             console.error(error);
         }
-    }, [key, storedValue] // Ensure the effect is only triggered when key or storedValue changes
-    );
+    }, [key, storedValue]);
     // Listen for storage changes (from other tabs/windows)
     react.useEffect(() => {
+        // Fallback for SSR
+        if (typeof window === 'undefined') {
+            return;
+        }
         const handleStorageChange = (event) => {
             if (event.key === key) {
                 try {
@@ -89,9 +104,7 @@ function useLocalStorage(key, initialValue) {
                 }
             }
         };
-        // Add event listener
         window.addEventListener('storage', handleStorageChange);
-        // Cleanup event listener on unmount
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
@@ -99,6 +112,26 @@ function useLocalStorage(key, initialValue) {
     return [storedValue, setValue];
 }
 
+function useFocus() {
+    const ref = react.useRef(null);
+    const [isFocused, setIsFocused] = react.useState(false);
+    const handleFocus = react.useCallback(() => setIsFocused(true), []);
+    const handleBlur = react.useCallback(() => setIsFocused(false), []);
+    const refCallback = react.useCallback((node) => {
+        if (ref.current) {
+            ref.current.removeEventListener("focus", handleFocus);
+            ref.current.removeEventListener("blur", handleBlur);
+        }
+        if (node) {
+            node.addEventListener("focus", handleFocus);
+            node.addEventListener("blur", handleBlur);
+        }
+        ref.current = node;
+    }, [handleFocus, handleBlur]);
+    return [refCallback, isFocused];
+}
+
 exports.useClickOutside = useClickOutside;
+exports.useFocus = useFocus;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;

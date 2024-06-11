@@ -2,9 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 
 type SetValue<T> = (value: T | ((val: T) => T)) => void;
 
+/**
+ * Custom hook to sync state with localStorage.
+ *
+ * @param key - The key under which the value is stored in localStorage.
+ * @param initialValue - The initial value to use if no value is found in localStorage.
+ * @returns A stateful value and a function to update it.
+ */
 function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
-  // State to store the value
   const [storedValue, setStoredValue] = useState<T>(() => {
+    // Fallback for SSR
+    if (typeof window === 'undefined') {
+      return initialValue;
+    }
+
     try {
       // Get from local storage by key
       const item = window.localStorage.getItem(key);
@@ -20,9 +31,17 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
   const setValue: SetValue<T> = useCallback(
     (value) => {
       try {
+        // Fallback for SSR
+        if (typeof window === 'undefined') {
+          console.warn(
+            'Attempted to use localStorage in a non-browser environment',
+          );
+          return;
+        }
+
         // Allow value to be a function so we have the same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        // Save state
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
         setStoredValue(valueToStore);
         // Save to local storage
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
@@ -30,25 +49,30 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
         console.error(error);
       }
     },
-    [key, storedValue] // Ensure the effect is only triggered when key or storedValue changes
+    [key, storedValue], // Dependencies: only recreate if key or storedValue changes
   );
 
   // Listen for storage changes (from other tabs/windows)
   useEffect(() => {
+    // Fallback for SSR
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === key) {
         try {
-          setStoredValue(event.newValue ? JSON.parse(event.newValue) : initialValue);
+          setStoredValue(
+            event.newValue ? JSON.parse(event.newValue) : initialValue,
+          );
         } catch (error) {
           console.error(error);
         }
       }
     };
 
-    // Add event listener
     window.addEventListener('storage', handleStorageChange);
 
-    // Cleanup event listener on unmount
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
