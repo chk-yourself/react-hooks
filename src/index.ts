@@ -9,3 +9,4 @@ export { default as useHover } from "./hooks/useHover";
 export { default as useIntersectionObserver } from "./hooks/useIntersectionObserver";
 export { default as useFetch } from "./hooks/useFetch";
 export { default as usePrevious } from "./hooks/usePrevious";
+export { default as useDebounce } from "./hooks/useDebounce";

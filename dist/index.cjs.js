@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -358,7 +356,21 @@ function usePrevious(value) {
     return prevValue.current;
 }
 
+function useDebounce(value, delay = 500) {
+    const [debouncedValue, setDebouncedValue] = react.useState(value);
+    react.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+    return debouncedValue;
+}
+
 exports.useClickOutside = useClickOutside;
+exports.useDebounce = useDebounce;
 exports.useFetch = useFetch;
 exports.useFocus = useFocus;
 exports.useForm = useForm;
