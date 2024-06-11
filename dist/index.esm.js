@@ -1,3 +1,5 @@
+
+(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 import { useRef, useEffect, useState, useCallback } from 'react';
 
 function useIsFirstRender() {
@@ -231,4 +233,27 @@ function useResizeObserver(ref) {
     return contentRect;
 }
 
-export { useClickOutside, useFocus, useForm, useIsFirstRender, useLocalStorage, useMediaQuery, useResizeObserver };
+/**
+ * Custom hook to track hover state of an element.
+ * @returns A tuple containing the ref object and the hover state.
+ */
+function useHover() {
+    const [isHovered, setIsHovered] = useState(false);
+    const ref = useRef(null);
+    const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+    const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+    const refCallback = useCallback((node) => {
+        if (ref.current) {
+            ref.current.removeEventListener('mouseenter', handleMouseEnter);
+            ref.current.removeEventListener('mouseleave', handleMouseLeave);
+        }
+        if (node) {
+            node.addEventListener('mouseenter', handleMouseEnter);
+            node.addEventListener('mouseleave', handleMouseLeave);
+        }
+        ref.current = node;
+    }, [handleMouseEnter, handleMouseLeave]);
+    return [refCallback, isHovered];
+}
+
+export { useClickOutside, useFocus, useForm, useHover, useIsFirstRender, useLocalStorage, useMediaQuery, useResizeObserver };
