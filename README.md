@@ -1,3 +1,21 @@
 # React Hooks Library
 
-A library of custom React hooks written in TypeScript.
+A collection of modern, custom React hooks written in TypeScript.
+
+## Hooks
+
+- useIsFirstRender
+- useClickOutside
+- useLocalStorage
+- useFocus
+- useMediaQuery
+- useForm
+- useResizeObserver
+- useHover
+- useIntersectionObserver
+- useFetch
+- usePrevious
+- useDebounce
+- useScrollLock
+- useIdle
+- useClipboard
