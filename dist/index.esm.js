@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 import { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react';
 
 function useIsFirstRender() {
@@ -401,4 +399,66 @@ const useScrollLock = () => {
     return { ref, lock, unlock };
 };
 
-export { useClickOutside, useDebounce, useFetch, useFocus, useForm, useHover, useIntersectionObserver, useIsFirstRender, useLocalStorage, useMediaQuery, usePrevious, useResizeObserver, useScrollLock };
+const activeEvents = [
+    "mousedown",
+    "mousemove",
+    "touchstart",
+    "touchmove",
+    "keydown",
+    "wheel",
+];
+const useIdle = ({ idleTime = 300000, onIdle = () => null, onActive = () => null, }) => {
+    const [isIdle, setIsIdle] = useState(false);
+    useEffect(() => {
+        let timer;
+        const resetTimer = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                setIsIdle(true);
+                onIdle();
+            }, idleTime);
+        };
+        const handleActiveEvent = () => {
+            setIsIdle(false);
+            onActive();
+            resetTimer();
+        };
+        const attachEventListeners = () => {
+            activeEvents.forEach((event) => {
+                window.addEventListener(event, handleActiveEvent);
+            });
+            return () => {
+                activeEvents.forEach((event) => {
+                    window.removeEventListener(event, handleActiveEvent);
+                });
+            };
+        };
+        resetTimer();
+        const removeEventListeners = attachEventListeners();
+        return () => {
+            clearTimeout(timer);
+            removeEventListeners();
+        };
+    }, [idleTime, onIdle, onActive]);
+    return isIdle;
+};
+
+const useClipboard = () => {
+    const [isCopied, setIsCopied] = useState(false);
+    const [error, setError] = useState(null);
+    const copyToClipboard = useCallback((text) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield navigator.clipboard.writeText(text);
+            setIsCopied(true);
+            setError(null);
+            setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+        }
+        catch (err) {
+            setError('Failed to copy');
+            setIsCopied(false);
+        }
+    }), []);
+    return { copyToClipboard, isCopied, error };
+};
+
+export { useClickOutside, useClipboard, useDebounce, useFetch, useFocus, useForm, useHover, useIdle, useIntersectionObserver, useIsFirstRender, useLocalStorage, useMediaQuery, usePrevious, useResizeObserver, useScrollLock };

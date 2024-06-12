@@ -11,3 +11,5 @@ export { default as useFetch } from "./hooks/useFetch";
 export { default as usePrevious } from "./hooks/usePrevious";
 export { default as useDebounce } from "./hooks/useDebounce";
 export { default as useScrollLock } from "./hooks/useScrollLock";
+export { default as useIdle } from "./hooks/useIdle";
+export { default as useClipboard } from "./hooks/useClipboard";

@@ -18,7 +18,7 @@
     "jsxImportSource": "react",
     "declaration": true,
     "outDir": "dist",
-    "types": ["jest"]
+    "types": ["jest", "node"]
   },
   "include": ["src"]
 }

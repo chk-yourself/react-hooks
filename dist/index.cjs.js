@@ -1,5 +1,3 @@
-
-(function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -405,12 +403,76 @@ const useScrollLock = () => {
     return { ref, lock, unlock };
 };
 
+const activeEvents = [
+    "mousedown",
+    "mousemove",
+    "touchstart",
+    "touchmove",
+    "keydown",
+    "wheel",
+];
+const useIdle = ({ idleTime = 300000, onIdle = () => null, onActive = () => null, }) => {
+    const [isIdle, setIsIdle] = react.useState(false);
+    react.useEffect(() => {
+        let timer;
+        const resetTimer = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                setIsIdle(true);
+                onIdle();
+            }, idleTime);
+        };
+        const handleActiveEvent = () => {
+            setIsIdle(false);
+            onActive();
+            resetTimer();
+        };
+        const attachEventListeners = () => {
+            activeEvents.forEach((event) => {
+                window.addEventListener(event, handleActiveEvent);
+            });
+            return () => {
+                activeEvents.forEach((event) => {
+                    window.removeEventListener(event, handleActiveEvent);
+                });
+            };
+        };
+        resetTimer();
+        const removeEventListeners = attachEventListeners();
+        return () => {
+            clearTimeout(timer);
+            removeEventListeners();
+        };
+    }, [idleTime, onIdle, onActive]);
+    return isIdle;
+};
+
+const useClipboard = () => {
+    const [isCopied, setIsCopied] = react.useState(false);
+    const [error, setError] = react.useState(null);
+    const copyToClipboard = react.useCallback((text) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield navigator.clipboard.writeText(text);
+            setIsCopied(true);
+            setError(null);
+            setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+        }
+        catch (err) {
+            setError('Failed to copy');
+            setIsCopied(false);
+        }
+    }), []);
+    return { copyToClipboard, isCopied, error };
+};
+
 exports.useClickOutside = useClickOutside;
+exports.useClipboard = useClipboard;
 exports.useDebounce = useDebounce;
 exports.useFetch = useFetch;
 exports.useFocus = useFocus;
 exports.useForm = useForm;
 exports.useHover = useHover;
+exports.useIdle = useIdle;
 exports.useIntersectionObserver = useIntersectionObserver;
 exports.useIsFirstRender = useIsFirstRender;
 exports.useLocalStorage = useLocalStorage;
